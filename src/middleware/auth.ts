@@ -1,7 +1,9 @@
 import { Request, Response } from "express";
-import jwt from "jsonwebtoken";
+import * as jwt from "jsonwebtoken";
 
-export default (req: Request, res: Response, next: any) => {
+import User from "@models/typings/user.interface";
+
+export const verifyToken = (req: Request, res: Response, next: any) => {
   const tokenKey: string | undefined = process.env.TOKEN_KEY;
   const key: string = tokenKey || "default";
 
@@ -13,7 +15,11 @@ export default (req: Request, res: Response, next: any) => {
   }
   try {
     const decoded = jwt.verify(token, key);
-    req.user = decoded;
+
+    if (typeof decoded === "object" && decoded !== null) {
+      const user: User = decoded as User;
+      req.user = user;
+    }
   } catch (err) {
     return res.status(401).send("Invalid Token");
   }

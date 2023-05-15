@@ -1,10 +1,9 @@
 import { Request, Response } from "express";
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
+import * as bcrypt from "bcryptjs";
+import * as jwt from "jsonwebtoken";
 
 import catchAsync from "./../utils/catchAsync";
 import UserModel from "./../models/user";
-import User from "./../models/user.interface";
 
 const register = catchAsync(async (req: Request, res: Response) => {
   // Our register logic starts here
@@ -12,10 +11,20 @@ const register = catchAsync(async (req: Request, res: Response) => {
     // Get user input
     const data = req.body ?? new ReadableStream<Uint8Array>();
 
-    const { firstName, lastName, email, password } = data;
+    const {
+      firstName,
+      lastName,
+      email,
+      password,
+      picturePath,
+      location,
+      occupation,
+    } = data;
 
     // Validate user input
-    if (!(email && password && firstName && lastName)) {
+    if (
+      !(email && password && firstName && lastName && location && occupation)
+    ) {
       res.status(400).send("All input is required");
     }
 
@@ -36,13 +45,15 @@ const register = catchAsync(async (req: Request, res: Response) => {
       lastName,
       email: email.toLowerCase(), // sanitize: convert email to lowercase
       password: encryptedPassword,
+      location,
+      occupation,
     });
 
     const tokenKey: string | undefined = process.env.TOKEN_KEY;
     const key: string = tokenKey || "default";
 
     // Create token
-    const token = jwt.sign({ ser_id: user._id, email }, key, {
+    const token = jwt.sign({ user_id: user._id, email }, key, {
       algorithm: "HS256",
       expiresIn: "2h",
     });
@@ -52,8 +63,9 @@ const register = catchAsync(async (req: Request, res: Response) => {
 
     // return new user
     res.status(201).json(user);
-  } catch (err) {
+  } catch (err: any) {
     console.log(err);
+    res.status(500).json({ error: err.message });
   }
 });
 

@@ -1,24 +1,28 @@
-import express from "express";
-import dotenv from "dotenv";
-import cors from "cors";
-import helmet from "helmet";
-import morgan from "morgan";
+import * as express from "express";
+import * as dotenv from "dotenv";
+
+import { configureMiddlewares } from "./middleware/global";
 
 dotenv.config();
 
+const app = express();
+
+// DATABASE SETUP
 import connect from "./config/database";
 connect();
 
-const app = express();
+// GLOBAL MIDDLEWARES
+configureMiddlewares(app);
 
-app.use(express.json({ limit: "10kb" }));
-
-// const session = require("express-session");
-
-const authRouter = require("./routes/authRoutes");
+// ROUTES
+import authRouter from "./routes/authRoutes";
+import userRouter from "./routes/userRoutes";
+import postRouter from "./routes/postRoutes";
 
 // 3) ROUTES
-app.use("/", authRouter);
+app.use("/auth", authRouter);
+app.use("/api/v1/users", userRouter);
+app.use("/api/v1/posts", postRouter);
 
 // app.use('/api/v1/products', productRouter);
 // app.use('/api/v1/publicity', publicityRouter);

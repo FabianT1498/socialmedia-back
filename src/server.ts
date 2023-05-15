@@ -1,4 +1,4 @@
-import express, { Express, Request, Response } from "express";
+import { Request, Response } from "express";
 import { app } from "./app";
 
 const port = 3000;
@@ -15,4 +15,3 @@ process.on("SIGINT", () => {
   console.log("Received SIGINT. Exiting...");
   process.exit();
 });
-
