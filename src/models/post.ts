@@ -1,28 +1,25 @@
-import { Schema, model, Types } from "mongoose";
-import User from "./typings/user.interface";
+import { Schema, model } from "mongoose";
+import Post from "./typings/post.interface";
 
-const userSchema = new Schema<User>(
+const PostSchema = new Schema<Post>(
   {
-    firstName: { type: String, required: true, default: null },
-    lastName: { type: String, required: true, default: null },
-    email: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
+    userId: {
+      type: Schema.Types.ObjectId,
+      required: true,
+    },
     picturePath: {
+      type: String,
+      required: true,
+    },
+    description: {
       type: String,
       default: "",
     },
-    friends: {
-      type: [Types.ObjectId],
-      default: [],
-    },
     location: String,
-    occupation: String,
-    viewedProfile: Number,
-    impressions: Number,
-    token: { type: String, requierd: true },
+    likes: { type: Schema.Types.Map, required: true },
   },
 
   { timestamps: true }
 );
 
-export default model<User>("user", userSchema);
+export default model<Post>("post", PostSchema);

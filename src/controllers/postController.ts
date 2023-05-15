@@ -5,20 +5,6 @@ import catchAsync from "./../utils/catchAsync";
 import Post from "@models/typings/post.interface";
 import PostModel from "@models/post";
 
-const formatFriends = (arr: User[]) =>
-  arr.map(
-    ({ _id, firstName, lastName, occupation, location, picturePath }: User) => {
-      return {
-        _id,
-        firstName,
-        lastName,
-        occupation,
-        location,
-        picturePath,
-      };
-    }
-  );
-
 const createPost = catchAsync(async (req: Request, res: Response) => {
   // Our register logic starts here
   try {

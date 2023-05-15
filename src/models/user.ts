@@ -12,14 +12,14 @@ const userSchema = new Schema<User>(
       default: "",
     },
     friends: {
-      type: [Types.ObjectId],
+      type: [Schema.Types.ObjectId],
       default: [],
     },
     location: String,
     occupation: String,
     viewedProfile: Number,
     impressions: Number,
-    token: { type: String, requierd: true },
+    token: { type: String, required: true },
   },
 
   { timestamps: true }
