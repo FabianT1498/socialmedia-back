@@ -5,6 +5,8 @@ import catchAsync from "./../utils/catchAsync";
 import User from "@app/models/typings/user.interface";
 import UserModel from "@models/user";
 
+import { validateGetUser } from "@validations/userValidations";
+
 const formatFriends = (arr: User[]) =>
   arr.map(
     ({ _id, firstName, lastName, occupation, location, picturePath }: User) => {
@@ -23,9 +25,15 @@ const getUser = catchAsync(async (req: Request, res: Response) => {
   // Our register logic starts here
   try {
     // Get user input
-    const data = req.params ?? new ReadableStream<Uint8Array>();
-    const { id } = data;
-    const user = await UserModel.findById(id);
+    const data = req.params ?? {};
+
+    const { error, value } = validateGetUser(data);
+
+    if (error) {
+      return res.status(400).send(error.details);
+    }
+
+    const user = await UserModel.findById(data.id);
     res.status(200).json(user);
   } catch (err: any) {
     res.status(500).json({ error: err.message });
@@ -36,9 +44,15 @@ const getUserFriends = catchAsync(async (req: Request, res: Response) => {
   // Our register logic starts here
   try {
     // Get user input
-    const data = req.params ?? new ReadableStream<Uint8Array>();
-    const { id } = data;
-    const user: User | null = await UserModel.findById(id);
+    const data = req.params ?? {};
+
+    const { error, value } = validateGetUser(data);
+
+    if (error) {
+      return res.status(400).send(error.details);
+    }
+
+    const user: User | null = await UserModel.findById(data.id);
 
     const friends =
       user &&
@@ -57,38 +71,58 @@ const getUserFriends = catchAsync(async (req: Request, res: Response) => {
 // UPDATE
 const addRemoveFriend = catchAsync(async (req: Request, res: Response) => {
   try {
-    const data = req.params ?? new ReadableStream<Uint8Array>();
-    const { friendId } = data;
+    let data = req.body ?? {};
 
-    const user = req.user && (await UserModel.findById(req.user._id));
+    let friendData = { id: data.friendId };
 
-    const friendObjId: Types.ObjectId = new Types.ObjectId(friendId);
+    const { error, value } = validateGetUser(friendData);
 
-    if (user && Types.ObjectId.isValid(friendId)) {
+    if (error) {
+      return res.status(400).send(error.details);
+    }
+
+    if (req.user) {
+      const friend = await UserModel.findById(friendData.id);
+
+      if (!friend) {
+        return res
+          .status(400)
+          .json({ status: 400, message: "Friend doesn't exist" });
+      }
+      const user = await UserModel.findById(req.user._id);
+
+      if (user && friendData.id === user._id.toString()) {
+        return res.status(400).json({
+          status: 400,
+          message: "You can't add or delete to yourself as friend",
+        });
+      }
+
+      if (!user) {
+        return res.status(400).send("Authenticated user doesn't exist");
+      }
+
       const index = user.friends.findIndex(
-        ({ _id }: Types.ObjectId) => _id === friendObjId
+        ({ _id }: Types.ObjectId) => _id.toString() === friendData.id
       );
 
       if (index !== -1) {
-        user.friends?.splice(index, 1);
+        user.friends.splice(index, 1);
       } else {
-        user.friends.push(friendObjId);
+        user.friends.push(new Types.ObjectId(friendData.id));
       }
 
       await user.save();
 
-      const friends =
-        user &&
-        (await UserModel.find({
-          _id: { $in: user.friends },
-        }));
+      const friends = await UserModel.find({
+        _id: { $in: user.friends },
+      });
 
       return res.status(200).json(formatFriends(friends));
     }
 
-    return res.status(404).json({
-      message:
-        "ID parameter is missing or malformed. Please check your request.",
+    return res.status(400).json({
+      message: "Authenticated user doesn't exist",
     });
   } catch (err: any) {
     res.status(404).json({ message: err.message });

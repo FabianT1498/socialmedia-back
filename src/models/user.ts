@@ -19,7 +19,7 @@ const userSchema = new Schema<User>(
     occupation: String,
     viewedProfile: Number,
     impressions: Number,
-    token: { type: String, required: true },
+    token: { type: String, required: false },
   },
 
   { timestamps: true }
