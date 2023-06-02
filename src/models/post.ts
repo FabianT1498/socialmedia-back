@@ -16,7 +16,7 @@ const PostSchema = new Schema<Post>(
       default: "",
     },
     location: String,
-    likes: { type: Schema.Types.Map, required: true },
+    likes: { type: Schema.Types.Map, required: true, default: {} },
   },
 
   { timestamps: true }

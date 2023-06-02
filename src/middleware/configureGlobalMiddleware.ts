@@ -5,18 +5,18 @@ import * as morgan from "morgan";
 import * as path from "path";
 import * as bodyParser from "body-parser";
 
-const configureMiddlewares = (app: express.Application) => {
+const configureGlobalMiddleware = (app: express.Application) => {
   const currentFilename = __filename;
   const currentDirPath = path.dirname(currentFilename);
 
   // Parsing request body middlewares
   app.use(express.json());
-  app.use(bodyParser.json({ limit: "30mb" }));
-  app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }));
+  app.use(bodyParser.json({limit: "30mb"}));
+  app.use(bodyParser.urlencoded({limit: "30mb", extended: true}));
 
   // Security Middlewares
   app.use(helmet());
-  app.use(helmet.crossOriginResourcePolicy({ policy: "cross-origin" }));
+  app.use(helmet.crossOriginResourcePolicy({policy: "cross-origin"}));
   app.use(cors());
 
   // Loggin Middlware
@@ -25,8 +25,8 @@ const configureMiddlewares = (app: express.Application) => {
   // File handling Middleware
   app.use(
     "/assets",
-    express.static(path.join("..", currentDirPath, "public/assets"))
+    express.static(path.join(currentDirPath, "../../", "assets"))
   );
 };
 
-export { configureMiddlewares };
+export {configureGlobalMiddleware};

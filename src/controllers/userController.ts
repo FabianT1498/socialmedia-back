@@ -89,41 +89,36 @@ const addRemoveFriend = catchAsync(async (req: Request, res: Response) => {
           .status(400)
           .json({ status: 400, message: "Friend doesn't exist" });
       }
+
       const user = await UserModel.findById(req.user._id);
 
-      if (user && friendData.id === user._id.toString()) {
-        return res.status(400).json({
-          status: 400,
-          message: "You can't add or delete to yourself as friend",
+      if (user) {
+        if (friendData.id === user._id.toString()) {
+          return res.status(400).json({
+            status: 400,
+            message: "You can't add or delete to yourself as friend",
+          });
+        }
+
+        const index = user.friends.findIndex(
+          ({ _id }: Types.ObjectId) => _id.toString() === friendData.id
+        );
+
+        if (index !== -1) {
+          user.friends.splice(index, 1);
+        } else {
+          user.friends.push(new Types.ObjectId(friendData.id));
+        }
+
+        await user?.save();
+
+        const friends = await UserModel.find({
+          _id: { $in: user.friends },
         });
+
+        return res.status(200).json(formatFriends(friends));
       }
-
-      if (!user) {
-        return res.status(400).send("Authenticated user doesn't exist");
-      }
-
-      const index = user.friends.findIndex(
-        ({ _id }: Types.ObjectId) => _id.toString() === friendData.id
-      );
-
-      if (index !== -1) {
-        user.friends.splice(index, 1);
-      } else {
-        user.friends.push(new Types.ObjectId(friendData.id));
-      }
-
-      await user.save();
-
-      const friends = await UserModel.find({
-        _id: { $in: user.friends },
-      });
-
-      return res.status(200).json(formatFriends(friends));
     }
-
-    return res.status(400).json({
-      message: "Authenticated user doesn't exist",
-    });
   } catch (err: any) {
     res.status(404).json({ message: err.message });
   }

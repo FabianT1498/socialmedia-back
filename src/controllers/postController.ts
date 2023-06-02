@@ -1,45 +1,59 @@
-import { Request, Response } from "express";
-import { Types } from "mongoose";
+import {Request, Response} from "express";
+import {Types} from "mongoose";
 
 import catchAsync from "@utils/catchAsync";
-import { paginate } from "@utils/paginate";
+import {paginate} from "@utils/paginate";
 
-import Post from "@models/typings/post.interface";
 import PostModel from "@models/post";
 import User from "@models/typings/user.interface";
 import UserModel from "@models/user";
+
+import {validateCreatePost} from "@validations/postValidations";
 
 const createPost = catchAsync(async (req: Request, res: Response) => {
   // Our register logic starts here
   try {
     // Get user input
-    const data = req.body ?? new ReadableStream<Uint8Array>();
-    const { description, picturePath, location } = data;
-    const user: User | undefined = req.user;
+    const data = req.body ?? {};
 
-    const postData = {
-      userId: user?._id,
-      location,
-      description,
-      picturePath,
-      likes: {},
-    };
-    const newPost = new PostModel(postData);
+    if (!req.file) {
+      return res.status(400).json({message: "No picture was uploaded, please select an picture"});
+    }
 
-    await newPost.save();
+    delete data.pictureCategory
 
-    res
-      .status(201)
-      .json({ message: "Post created successfully", post: postData });
+    const {error, value} = validateCreatePost(data);
+
+    if (error) {
+      return res.status(400).send(error.details);
+    }
+    if (req.user) {
+      const fileUrl = `posts/${req.file.filename
+        }`;
+
+      const postData = {
+        ...data,
+        userId: new Types.ObjectId(req.user._id),
+        picturePath: fileUrl,
+      };
+
+      const newPost = new PostModel(postData);
+
+      await newPost.save();
+
+      res
+        .status(201)
+        .json({message: "Post created successfully", post: postData});
+    }
   } catch (err: any) {
-    res.status(400).json({ message: err.message });
+    res.status(400).json({message: err.message});
   }
 });
 
 const getFeedPosts = catchAsync(async (req: Request, res: Response) => {
   try {
     const data = req.query ?? new ReadableStream<Uint8Array>();
-    let { page, pageSize } = data;
+    let {page, pageSize} = data;
     const user: User | null = await UserModel.findById(
       req.user ? req.user._id : ""
     );
@@ -50,8 +64,8 @@ const getFeedPosts = catchAsync(async (req: Request, res: Response) => {
     let query =
       user &&
       PostModel.find({
-        userId: { $in: user.friends },
-      }).sort({ createdAt: -1 });
+        userId: {$in: user.friends},
+      }).sort({createdAt: -1});
 
     if (isNaN(pageNumber)) pageNumber = 0;
     if (isNaN(pageSizeNumber)) pageSizeNumber = 0;
@@ -64,22 +78,22 @@ const getFeedPosts = catchAsync(async (req: Request, res: Response) => {
 
     res.status(200).json(result);
   } catch (err: any) {
-    res.status(409).json({ error: err.message });
+    res.status(409).json({error: err.message});
   }
 });
 
 const getUserPosts = catchAsync(async (req: Request, res: Response) => {
   try {
     const queryParams = req.query ?? new ReadableStream<Uint8Array>();
-    let { page, pageSize } = queryParams;
+    let {page, pageSize} = queryParams;
 
     const routeParams = req.query ?? new ReadableStream<Uint8Array>();
-    let { userId } = routeParams;
+    let {userId} = routeParams;
 
     let pageNumber: number = !page ? 0 : Number(page);
     let pageSizeNumber: number = !pageSize ? 0 : Number(pageSize);
 
-    const query = PostModel.find({ userId }).sort({
+    const query = PostModel.find({userId}).sort({
       createdAt: -1,
     });
 
@@ -94,7 +108,7 @@ const getUserPosts = catchAsync(async (req: Request, res: Response) => {
 
     res.status(200).json(result);
   } catch (err: any) {
-    res.status(409).json({ message: err.message });
+    res.status(409).json({message: err.message});
   }
 });
 
@@ -102,7 +116,7 @@ const likePost = catchAsync(async (req: Request, res: Response) => {
   try {
     const routeParams = req.query ?? new ReadableStream<Uint8Array>();
 
-    let { id } = routeParams;
+    let {id} = routeParams;
 
     const post = await PostModel.findById(id);
 
@@ -121,7 +135,7 @@ const likePost = catchAsync(async (req: Request, res: Response) => {
         {
           likes: post.likes,
         },
-        { new: true }
+        {new: true}
       );
 
       res.status(200).json(updatedPost);
@@ -129,8 +143,8 @@ const likePost = catchAsync(async (req: Request, res: Response) => {
 
     return res.status(404).json({});
   } catch (err: any) {
-    res.status(409).json({ message: err.message });
+    res.status(409).json({message: err.message});
   }
 });
 
-export { createPost, getFeedPosts, getUserPosts, likePost };
+export {createPost, getFeedPosts, getUserPosts, likePost};

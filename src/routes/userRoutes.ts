@@ -6,9 +6,9 @@ import {
   addRemoveFriend,
 } from "./../controllers/userController";
 
-import { verifyToken } from "./../middleware/auth";
+import {verifyToken} from "./../middleware/authMiddleware";
 
-import { upload } from "../config/multerConfig";
+import {upload} from "../config/multerConfig";
 
 const router = express.Router();
 

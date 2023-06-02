@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import {Request, Response} from "express";
 import * as jwt from "jsonwebtoken";
 
 import User from "@models/typings/user.interface";
@@ -23,7 +23,12 @@ export const verifyToken = catchAsync(
 
       if (decoded && typeof decoded === "object") {
         const user: User | null = await UserModel.findById(decoded.userId);
-        req.user = user ?? undefined;
+
+        if (!user) {
+          return res.status(400).send("Authenticated user doesn't exist");
+        }
+
+        req.user = user;
       }
     } catch (err) {
       return res.status(401).send("Invalid Token");
