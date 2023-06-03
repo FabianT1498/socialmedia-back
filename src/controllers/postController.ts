@@ -70,6 +70,9 @@ const getFeedPosts = catchAsync(async (req: Request, res: Response) => {
     if (isNaN(pageNumber)) pageNumber = 0;
     if (isNaN(pageSizeNumber)) pageSizeNumber = 10;
 
+    if (!query) {
+      return res.status(402).send("User doesn't exist")
+    }
     let result = await paginate(query, pageNumber, pageSizeNumber);
     res.status(200).json(result);
   } catch (err: any) {
@@ -79,27 +82,23 @@ const getFeedPosts = catchAsync(async (req: Request, res: Response) => {
 
 const getUserPosts = catchAsync(async (req: Request, res: Response) => {
   try {
-    const queryParams = req.query ?? new ReadableStream<Uint8Array>();
+    const queryParams = req.query ?? {};
     let {page, pageSize} = queryParams;
 
-    const routeParams = req.query ?? new ReadableStream<Uint8Array>();
+    const routeParams = req.params ?? {};
     let {userId} = routeParams;
 
-    let pageNumber: number = !page ? 0 : Number(page);
-    let pageSizeNumber: number = !pageSize ? 0 : Number(pageSize);
+    let pageNumber: number = !page ? 0 : (typeof page === "string" ? parseInt(page) : 0);
+    let pageSizeNumber: number = !pageSize ? 10 : (typeof pageSize === "string" ? parseInt(pageSize) : 10);
 
     const query = PostModel.find({userId}).sort({
       createdAt: -1,
     });
 
     if (isNaN(pageNumber)) pageNumber = 0;
-    if (isNaN(pageSizeNumber)) pageSizeNumber = 0;
+    if (isNaN(pageSizeNumber)) pageSizeNumber = 10;
 
-    let result = {};
-
-    if (query) {
-      result = await paginate(query, pageNumber, pageSizeNumber);
-    }
+    let result = await paginate(query, pageNumber, pageSizeNumber);
 
     res.status(200).json(result);
   } catch (err: any) {
@@ -109,14 +108,19 @@ const getUserPosts = catchAsync(async (req: Request, res: Response) => {
 
 const likePost = catchAsync(async (req: Request, res: Response) => {
   try {
-    const routeParams = req.query ?? new ReadableStream<Uint8Array>();
+    const routeParams = req.params ?? {};
 
     let {id} = routeParams;
 
     const post = await PostModel.findById(id);
 
-    if (post && req.user && req.user._id) {
-      let userIdString = req.user._id.toString();
+    if (post) {
+      let userIdString = req.user?._id && req.user?._id.toString();
+
+      if (!userIdString) {
+        return res.status(402).send("User doesn't exist")
+      }
+
       const isLiked = post.likes.get(userIdString);
 
       if (isLiked) {
@@ -136,7 +140,7 @@ const likePost = catchAsync(async (req: Request, res: Response) => {
       res.status(200).json(updatedPost);
     }
 
-    return res.status(404).json({});
+    return res.status(404).json({message: "Post doesn't exist"});
   } catch (err: any) {
     res.status(409).json({message: err.message});
   }
