@@ -52,14 +52,14 @@ const createPost = catchAsync(async (req: Request, res: Response) => {
 
 const getFeedPosts = catchAsync(async (req: Request, res: Response) => {
   try {
-    const data = req.query ?? new ReadableStream<Uint8Array>();
+    const data = req.query ?? {};
     let {page, pageSize} = data;
     const user: User | null = await UserModel.findById(
       req.user ? req.user._id : ""
     );
 
-    let pageNumber: number = !page ? 0 : Number(page);
-    let pageSizeNumber: number = !pageSize ? 0 : Number(pageSize);
+    let pageNumber: number = !page ? 0 : (typeof page === "string" ? parseInt(page) : 0);
+    let pageSizeNumber: number = !pageSize ? 10 : (typeof pageSize === "string" ? parseInt(pageSize) : 10);
 
     let query =
       user &&
@@ -68,14 +68,9 @@ const getFeedPosts = catchAsync(async (req: Request, res: Response) => {
       }).sort({createdAt: -1});
 
     if (isNaN(pageNumber)) pageNumber = 0;
-    if (isNaN(pageSizeNumber)) pageSizeNumber = 0;
+    if (isNaN(pageSizeNumber)) pageSizeNumber = 10;
 
-    let result = {};
-
-    if (query) {
-      result = await paginate(query, pageNumber, pageSizeNumber);
-    }
-
+    let result = await paginate(query, pageNumber, pageSizeNumber);
     res.status(200).json(result);
   } catch (err: any) {
     res.status(409).json({error: err.message});
