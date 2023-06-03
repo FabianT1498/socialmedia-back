@@ -1,40 +1,41 @@
 import { Request, Response } from "express";
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
+import * as bcrypt from "bcryptjs";
+import * as jwt from "jsonwebtoken";
 
 import catchAsync from "./../utils/catchAsync";
 import UserModel from "./../models/user";
-import User from "./../models/user.interface";
+import User from "@models/typings/user.interface";
+
+import { validateSignUp, validateLogin } from "@validations/authValidations";
 
 const register = catchAsync(async (req: Request, res: Response) => {
   // Our register logic starts here
   try {
     // Get user input
-    const data = req.body ?? new ReadableStream<Uint8Array>();
+    const data: User = req.body ?? {};
 
-    const { firstName, lastName, email, password } = data;
+    const { error, value } = validateSignUp(data);
 
     // Validate user input
-    if (!(email && password && firstName && lastName)) {
-      res.status(400).send("All input is required");
+    if (error) {
+      return res.status(400).send(error.details);
     }
 
     // check if user already exist
     // Validate if user exist in our database
-    const oldUser = await UserModel.findOne({ email });
+    const oldUser = await UserModel.findOne({ email: data.email });
 
     if (oldUser) {
       return res.status(409).send("User Already Exist. Please Login");
     }
 
     //Encrypt user password
-    const encryptedPassword = await bcrypt.hash(password, 10);
+    const encryptedPassword = await bcrypt.hash(data.password, 10);
 
     // Create user in our database
     const user = await UserModel.create({
-      firstName,
-      lastName,
-      email: email.toLowerCase(), // sanitize: convert email to lowercase
+      ...data,
+      email: data.email.toLowerCase(),
       password: encryptedPassword,
     });
 
@@ -42,47 +43,58 @@ const register = catchAsync(async (req: Request, res: Response) => {
     const key: string = tokenKey || "default";
 
     // Create token
-    const token = jwt.sign({ ser_id: user._id, email }, key, {
-      algorithm: "HS256",
-      expiresIn: "2h",
-    });
+    const token = jwt.sign(
+      { userId: user._id, email: data.email.toLowerCase() },
+      key,
+      {
+        algorithm: "HS256",
+        expiresIn: "2h",
+      }
+    );
 
     // save user token
     user.token = token;
 
     // return new user
     res.status(201).json(user);
-  } catch (err) {
+  } catch (err: any) {
     console.log(err);
+    res.status(500).json({ error: err.message });
   }
 });
 
-const login = catchAsync(async (req: any, res: any) => {
+const login = catchAsync(async (req: Request, res: Response) => {
   // Our login logic starts here
   try {
-    // Get user input
-    const { email, password } = req.body;
+    const data: User = req.body ?? {};
 
-    // Validate user input
-    if (!(email && password)) {
-      res.status(400).send("All input is required");
+    const { value, error } = validateLogin(data);
+
+    // Get user input
+    if (error) {
+      return res.status(400).send(error.details);
     }
+
     // Validate if user exist in our database
-    const user = await UserModel.findOne({ email });
+    const user = await UserModel.findOne({ email: data.email.toLowerCase() });
     const tokenKey: string | undefined = process.env.TOKEN_KEY;
     const key: string = tokenKey || "default";
 
-    if (user && (await bcrypt.compare(password, user.password))) {
+    if (user && (await bcrypt.compare(data.password, user.password))) {
       // Create token
-      const token = jwt.sign({ user_id: user._id, email }, key, {
-        expiresIn: "2h",
-      });
+      const token = jwt.sign(
+        { userId: user._id, email: data.email.toLowerCase() },
+        key,
+        {
+          expiresIn: "2h",
+        }
+      );
 
       // save user token
       user.token = token;
 
       // user
-      res.status(200).json(user);
+      return res.status(200).json(user);
     }
     res.status(400).send("Invalid Credentials");
   } catch (err) {
