@@ -1,12 +1,12 @@
-import { Request, Response } from "express";
-import * as bcrypt from "bcryptjs";
-import * as jwt from "jsonwebtoken";
+import { Request, Response } from 'express';
+import * as bcrypt from 'bcryptjs';
+import * as jwt from 'jsonwebtoken';
 
-import catchAsync from "./../utils/catchAsync";
-import UserModel from "./../models/user";
-import User from "@models/typings/user.interface";
+import catchAsync from './../utils/catchAsync';
+import UserModel from './../models/user';
+import User from '@models/typings/user.interface';
 
-import { validateSignUp, validateLogin } from "@validations/authValidations";
+import { validateSignUp, validateLogin } from '@validations/authValidations';
 
 const register = catchAsync(async (req: Request, res: Response) => {
   // Our register logic starts here
@@ -26,7 +26,7 @@ const register = catchAsync(async (req: Request, res: Response) => {
     const oldUser = await UserModel.findOne({ email: data.email });
 
     if (oldUser) {
-      return res.status(409).send("User Already Exist. Please Login");
+      return res.status(409).send('User Already Exist. Please Login');
     }
 
     //Encrypt user password
@@ -40,17 +40,13 @@ const register = catchAsync(async (req: Request, res: Response) => {
     });
 
     const tokenKey: string | undefined = process.env.TOKEN_KEY;
-    const key: string = tokenKey || "default";
+    const key: string = tokenKey || 'default';
 
     // Create token
-    const token = jwt.sign(
-      { userId: user._id, email: data.email.toLowerCase() },
-      key,
-      {
-        algorithm: "HS256",
-        expiresIn: "2h",
-      }
-    );
+    const token = jwt.sign({ userId: user._id, email: data.email.toLowerCase() }, key, {
+      algorithm: 'HS256',
+      expiresIn: '2h',
+    });
 
     // save user token
     user.token = token;
@@ -78,17 +74,13 @@ const login = catchAsync(async (req: Request, res: Response) => {
     // Validate if user exist in our database
     const user = await UserModel.findOne({ email: data.email.toLowerCase() });
     const tokenKey: string | undefined = process.env.TOKEN_KEY;
-    const key: string = tokenKey || "default";
+    const key: string = tokenKey || 'default';
 
     if (user && (await bcrypt.compare(data.password, user.password))) {
       // Create token
-      const token = jwt.sign(
-        { userId: user._id, email: data.email.toLowerCase() },
-        key,
-        {
-          expiresIn: "2h",
-        }
-      );
+      const token = jwt.sign({ userId: user._id, email: data.email.toLowerCase() }, key, {
+        expiresIn: '2h',
+      });
 
       // save user token
       user.token = token;
@@ -96,7 +88,7 @@ const login = catchAsync(async (req: Request, res: Response) => {
       // user
       return res.status(200).json(user);
     }
-    res.status(400).send("Invalid Credentials");
+    res.status(400).send('Invalid Credentials');
   } catch (err) {
     console.log(err);
   }

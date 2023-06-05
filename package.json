@@ -8,7 +8,8 @@
     "prod": "node -r tsconfig-paths/register dist/server.js",
     "server": "nodemon -r tsconfig-paths/register src/server.ts",
     "watch-ts": "tsc -w",
-    "build": "tsc"
+    "build": "tsc",
+    "seed": "ts-node -r tsconfig-paths/register seeders/seed.ts"
   },
   "author": "",
   "license": "ISC",
@@ -38,6 +39,7 @@
     "@types/morgan": "^1.9.4",
     "@types/node": "^18.15.10",
     "concurrently": "^7.6.0",
+    "prettier": "^2.8.8",
     "ts-node": "^10.9.1",
     "tsconfig-paths": "^4.2.0"
   }

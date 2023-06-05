@@ -1,19 +1,22 @@
-const mongoose = require('mongoose');
-const userSeeder = require('./seeders/userSeeder');
-const postSeeder = require('./seeders/postSeeder');
+import * as dotenv from 'dotenv';
 
-// Conectarse a la base de datos
-mongoose
-  .connect('mongodb://localhost:27017/mydatabase', {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
-  .then(() => {
-    console.log('Connected to MongoDB.');
+import { seedUsers } from './userSeeder';
+import { seedPosts } from './postSeeder';
 
-    // Ejecutar los seeders
-    userSeeder();
-    postSeeder();
-  })
-  .catch((error) => console.error('Error connecting to MongoDB:', error));
+dotenv.config();
 
+import connect from '../src/config/database';
+
+const seed = async () => {
+  try {
+    await connect();
+    await seedUsers();
+    await seedPosts();
+    process.exit(0);
+  } catch (err) {
+    console.log(err);
+    process.exit(1);
+  }
+};
+
+seed();

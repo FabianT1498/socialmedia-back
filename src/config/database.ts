@@ -2,18 +2,15 @@ import mongoose from "mongoose";
 
 const { DATABASE_URL } = process.env;
 
-const connect = () => {
+const connect = async () => {
   // Connecting to the database
-  mongoose
-    .connect(DATABASE_URL || "")
-    .then(() => {
-      console.log("Successfully connected to database");
-    })
-    .catch((error) => {
-      console.log("database connection failed. exiting now...");
-      console.error(error);
-      process.exit(1);
-    });
+  try{
+    await mongoose.connect(DATABASE_URL || "")
+    console.log("Successfully connected to database");
+  } catch(err){
+    console.log("database connection failed. exiting now...");
+    throw err
+  }
 };
 
 export default connect;

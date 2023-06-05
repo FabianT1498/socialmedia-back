@@ -1,34 +1,40 @@
 import * as express from "express";
 import * as dotenv from "dotenv";
 
+// MIDDLEWARES
 import {configureGlobalMiddleware} from "./middleware/configureGlobalMiddleware";
 import {errorHandlerMiddleware} from "./middleware/errorHandlerMiddleware"
 
 dotenv.config();
 
-const app = express();
-
-// DATABASE SETUP
+// DATABASE
 import connect from "./config/database";
-connect();
-
-// GLOBAL MIDDLEWARES
-configureGlobalMiddleware(app);
 
 // ROUTES
 import authRouter from "./routes/authRoutes";
 import userRouter from "./routes/userRoutes";
 import postRouter from "./routes/postRoutes";
 
-// 3) ROUTES
-app.use("/auth", authRouter);
-app.use("/api/v1/users", userRouter);
-app.use("/api/v1/posts", postRouter);
+const app = express();
 
-errorHandlerMiddleware(app)
+(async () => {
+    try {
+        // DATABASE SETUP
+        await connect();
 
-// app.use('/api/v1/products', productRouter);
-// app.use('/api/v1/publicity', publicityRouter);
-// app.use('/api/v1/visor', visorRouter);
+        // GLOBAL MIDDLEWARES
+        configureGlobalMiddleware(app);
+
+        // 3) ROUTES
+        app.use("/auth", authRouter);
+        app.use("/api/v1/users", userRouter);
+        app.use("/api/v1/posts", postRouter);
+
+        errorHandlerMiddleware(app)
+    } catch(err){
+        console.error("Error connecting to the database:", err);
+        process.exit(1);
+    }
+})()
 
 export {app};
