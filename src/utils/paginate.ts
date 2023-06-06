@@ -1,6 +1,6 @@
-import { Query } from "mongoose";
+import { Query } from 'mongoose';
 
-import PaginationResult from "./types/paginate.interface";
+import PaginationResult from './types/paginate.interface';
 
 export async function paginate<T>(
   query: Query<T[], T>,
@@ -9,10 +9,8 @@ export async function paginate<T>(
 ): Promise<PaginationResult<T>> {
   const offset = (page - 1) * pageSize;
 
-  const [results, total] = await Promise.all([
-    query.skip(offset).limit(pageSize),
-    query.countDocuments(),
-  ]);
+  const results = await query.skip(offset).limit(pageSize);
+  const total = await query.clone().countDocuments();
 
   const totalPages = Math.ceil(total / pageSize);
 
