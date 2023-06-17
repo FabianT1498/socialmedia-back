@@ -1,25 +1,24 @@
-import { Request, Response } from "express";
-import { Types } from "mongoose";
+import { Request, Response } from 'express';
+import { Types } from 'mongoose';
 
-import catchAsync from "./../utils/catchAsync";
-import User from "@app/models/typings/user.interface";
-import UserModel from "@models/user";
+import { createResponse } from '@utils/createResponse';
+import catchAsync from './../utils/catchAsync';
+import User from '@app/models/typings/user.interface';
+import UserModel from '@models/user';
 
-import { validateGetUser } from "@validations/userValidations";
+import { validateGetUser } from '@validations/userValidations';
 
 const formatFriends = (arr: User[]) =>
-  arr.map(
-    ({ _id, firstName, lastName, occupation, location, picturePath }: User) => {
-      return {
-        _id,
-        firstName,
-        lastName,
-        occupation,
-        location,
-        picturePath,
-      };
-    }
-  );
+  arr.map(({ _id, firstName, lastName, occupation, location, picturePath }: User) => {
+    return {
+      _id,
+      firstName,
+      lastName,
+      occupation,
+      location,
+      picturePath,
+    };
+  });
 
 const getUser = catchAsync(async (req: Request, res: Response) => {
   // Our register logic starts here
@@ -85,9 +84,7 @@ const addRemoveFriend = catchAsync(async (req: Request, res: Response) => {
       const friend = await UserModel.findById(friendData.id);
 
       if (!friend) {
-        return res
-          .status(400)
-          .json({ status: 400, message: "Friend doesn't exist" });
+        return res.status(400).json({ status: 400, message: "Friend doesn't exist" });
       }
 
       const user = await UserModel.findById(req.user._id);
@@ -124,4 +121,11 @@ const addRemoveFriend = catchAsync(async (req: Request, res: Response) => {
   }
 });
 
-export { getUser, getUserFriends, addRemoveFriend };
+const getAuthUser = (req: Request, res: Response) => {
+  const user = req.user;
+  const response = createResponse(true, user, null);
+
+  res.status(200).json(response);
+};
+
+export { getUser, getUserFriends, addRemoveFriend, getAuthUser };

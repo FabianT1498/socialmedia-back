@@ -1,6 +1,6 @@
 import { Query } from 'mongoose';
 
-import PaginationResult from './types/paginate.interface';
+import PaginationResult from './typings/paginate.interface';
 
 export async function paginate<T>(
   query: Query<T[], T>,
