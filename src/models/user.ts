@@ -1,7 +1,7 @@
-import { Schema, model, Types } from "mongoose";
-import User from "./typings/user.interface";
+import { Schema, model } from 'mongoose';
+import UserSchema from './typings/userSchema.interface';
 
-const userSchema = new Schema<User>(
+const userSchema = new Schema<UserSchema>(
   {
     firstName: { type: String, required: true, default: null },
     lastName: { type: String, required: true, default: null },
@@ -9,7 +9,7 @@ const userSchema = new Schema<User>(
     password: { type: String, required: true },
     picturePath: {
       type: String,
-      default: "",
+      default: '',
     },
     friends: {
       type: [Schema.Types.ObjectId],
@@ -25,4 +25,4 @@ const userSchema = new Schema<User>(
   { timestamps: true }
 );
 
-export default model<User>("user", userSchema);
+export default model<UserSchema>('user', userSchema);

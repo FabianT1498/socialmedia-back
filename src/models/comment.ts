@@ -1,7 +1,7 @@
-import { Schema, model, Types } from "mongoose";
-import Comment from "./typings/comment.interface";
+import { Schema, model, Types } from 'mongoose';
+import CommentSchema from './typings/commentSchema.interface';
 
-const commentSchema = new Schema<Comment>(
+const commentSchema = new Schema<CommentSchema>(
   {
     authorId: { type: Schema.Types.ObjectId, required: true },
     postId: { type: Schema.Types.ObjectId, required: true },
@@ -16,4 +16,4 @@ const commentSchema = new Schema<Comment>(
   { timestamps: false }
 );
 
-export default model<Comment>("comment", commentSchema);
+export default model<CommentSchema>('comment', commentSchema);

@@ -1,7 +1,7 @@
-import { Schema, model } from "mongoose";
-import Post from "./typings/post.interface";
+import { Schema, model } from 'mongoose';
+import PostSchema from './typings/postSchema.interface';
 
-const PostSchema = new Schema<Post>(
+const postSchema = new Schema<PostSchema>(
   {
     userId: {
       type: Schema.Types.ObjectId,
@@ -13,7 +13,7 @@ const PostSchema = new Schema<Post>(
     },
     description: {
       type: String,
-      default: "",
+      default: '',
     },
     location: String,
     likes: { type: Schema.Types.Map, required: true, default: {} },
@@ -22,4 +22,4 @@ const PostSchema = new Schema<Post>(
   { timestamps: true }
 );
 
-export default model<Post>("post", PostSchema);
+export default model<PostSchema>('post', postSchema);
