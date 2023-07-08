@@ -131,86 +131,86 @@ const getFeedPosts = catchAsync(async (req: Request, res: Response) => {
   }
 });
 
-const getUserPosts = catchAsync(async (req: Request, res: Response) => {
-  try {
-    const queryParams = req.query ?? {};
-    let { page, pageSize } = queryParams;
+// const getUserPosts = catchAsync(async (req: Request, res: Response) => {
+//   try {
+//     const queryParams = req.query ?? {};
+//     let { page, pageSize } = queryParams;
 
-    const routeParams = req.params ?? {};
-    let { userId } = routeParams;
+//     const routeParams = req.params ?? {};
+//     let { userId } = routeParams;
 
-    const { error, value } = validateGetUserPost({ userId });
+//     const { error, value } = validateGetUserPost({ userId });
 
-    if (error) {
-      res.status(400).send(error.details);
-    }
+//     if (error) {
+//       res.status(400).send(error.details);
+//     }
 
-    let pageNumber: number = !page ? 0 : typeof page === 'string' ? parseInt(page) : 0;
-    let pageSizeNumber: number = !pageSize
-      ? 10
-      : typeof pageSize === 'string'
-      ? parseInt(pageSize)
-      : 10;
+//     let pageNumber: number = !page ? 0 : typeof page === 'string' ? parseInt(page) : 0;
+//     let pageSizeNumber: number = !pageSize
+//       ? 10
+//       : typeof pageSize === 'string'
+//       ? parseInt(pageSize)
+//       : 10;
 
-    const query = PostModel.find({ userId }).sort({
-      createdAt: -1,
-    });
+//     const query = PostModel.find({ userId }).sort({
+//       createdAt: -1,
+//     });
 
-    if (isNaN(pageNumber)) pageNumber = 0;
-    if (isNaN(pageSizeNumber)) pageSizeNumber = 10;
+//     if (isNaN(pageNumber)) pageNumber = 0;
+//     if (isNaN(pageSizeNumber)) pageSizeNumber = 10;
 
-    let result = await paginate(query, pageNumber, pageSizeNumber);
+//     let result = await paginate(query, pageNumber, pageSizeNumber);
 
-    res.status(200).json(result);
-  } catch (err: any) {
-    res.status(409).json({ message: err.message });
-  }
-});
+//     res.status(200).json(result);
+//   } catch (err: any) {
+//     res.status(409).json({ message: err.message });
+//   }
+// });
 
-const likePost = catchAsync(async (req: Request, res: Response) => {
-  try {
-    const routeParams = req.params ?? {};
+// const likePost = catchAsync(async (req: Request, res: Response) => {
+//   try {
+//     const routeParams = req.params ?? {};
 
-    let { id } = routeParams;
+//     let { id } = routeParams;
 
-    const { error, value } = validateLikePost({ id });
+//     const { error, value } = validateLikePost({ id });
 
-    if (error) {
-      return res.status(400).send(error.details);
-    }
+//     if (error) {
+//       return res.status(400).send(error.details);
+//     }
 
-    const post = await PostModel.findById(id);
+//     const post = await PostModel.findById(id);
 
-    if (post) {
-      let userIdString = req.user?._id && req.user?._id.toString();
+//     if (post) {
+//       let userIdString = req.user?._id && req.user?._id.toString();
 
-      if (!userIdString) {
-        return res.status(402).send("User doesn't exist");
-      }
+//       if (!userIdString) {
+//         return res.status(402).send("User doesn't exist");
+//       }
 
-      const isLiked = post.likes.get(userIdString);
+//       const isLiked = post.likes.get(userIdString);
 
-      if (isLiked) {
-        post.likes.delete(userIdString);
-      } else {
-        post.likes.set(userIdString, true);
-      }
+//       if (isLiked) {
+//         post.likes.delete(userIdString);
+//       } else {
+//         post.likes.set(userIdString, true);
+//       }
 
-      const updatedPost = await PostModel.findByIdAndUpdate(
-        id,
-        {
-          likes: post.likes,
-        },
-        { new: true }
-      );
+//       const updatedPost = await PostModel.findByIdAndUpdate(
+//         id,
+//         {
+//           likes: post.likes,
+//         },
+//         { new: true }
+//       );
 
-      res.status(200).json(updatedPost);
-    }
+//       res.status(200).json(updatedPost);
+//     }
 
-    return res.status(404).json({ message: "Post doesn't exist" });
-  } catch (err: any) {
-    res.status(409).json({ message: err.message });
-  }
-});
+//     return res.status(404).json({ message: "Post doesn't exist" });
+//   } catch (err: any) {
+//     res.status(409).json({ message: err.message });
+//   }
+// });
 
-export { createPost, getFeedPosts, getUserPosts, likePost };
+export { createPost, getFeedPosts };

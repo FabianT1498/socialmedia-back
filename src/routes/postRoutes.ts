@@ -1,6 +1,6 @@
 import * as express from 'express';
 
-import { createPost, getUserPosts, getFeedPosts, likePost } from '@controllers/postController';
+import { createPost, getFeedPosts } from '@controllers/postController';
 
 import { verifyToken } from './../middleware/authMiddleware';
 
