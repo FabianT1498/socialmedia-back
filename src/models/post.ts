@@ -3,20 +3,44 @@ import PostSchema from './typings/postSchema.interface';
 
 const postSchema = new Schema<PostSchema>(
   {
-    userId: {
-      type: Schema.Types.ObjectId,
+    title: {
+      type: Schema.Types.String,
       required: true,
     },
-    picturePath: {
-      type: String,
-      required: true,
-    },
-    description: {
+    content: {
       type: String,
       default: '',
     },
-    location: String,
-    likes: { type: Schema.Types.Map, required: true, default: {} },
+    authorId: {
+      type: Schema.Types.ObjectId,
+      required: true,
+    },
+    createdAt: {
+      type: Schema.Types.Date,
+      required: true,
+    },
+    updatedAt: {
+      type: Schema.Types.Date,
+      required: true,
+    },
+    tags: {
+      type: [Schema.Types.String],
+      required: false,
+    },
+    images: {
+      type: [Schema.Types.String],
+      required: false,
+    },
+    category: {
+      type: String,
+      default: '',
+      required: true,
+    },
+    featuredImage: {
+      type: String,
+      default: '',
+      required: false,
+    },
   },
 
   { timestamps: true }

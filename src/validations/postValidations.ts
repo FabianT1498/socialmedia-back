@@ -1,11 +1,15 @@
 import * as Joi from 'joi';
 
 import { validator } from './validator';
-import Post from '@models/typings/post.interface';
+import { Models } from '@fabiant1498/llovizna-blog';
 
-const createPostSchema = Joi.object<Post>({
-  location: Joi.string().optional(),
-  description: Joi.string().max(200).optional(),
+const createPostSchema = Joi.object<Models.Post>({
+  title: Joi.string().max(150).required(),
+  content: Joi.string().required(),
+  tags: Joi.array().items(Joi.string()).optional(),
+  category: Joi.string().required(),
+  images: Joi.array().items(Joi.string()).optional(),
+  featuredImage: Joi.string().optional(),
 });
 
 const getUserPostSchema = Joi.object({
@@ -16,7 +20,7 @@ const likePostSchema = Joi.object({
   id: Joi.string().hex().length(24).required(),
 });
 
-const validateCreatePost = validator<Post>(createPostSchema);
+const validateCreatePost = validator<Models.Post>(createPostSchema);
 const validateGetUserPost = validator(getUserPostSchema);
 const validateLikePost = validator(likePostSchema);
 

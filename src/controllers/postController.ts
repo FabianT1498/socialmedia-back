@@ -20,10 +20,6 @@ const createPost = catchAsync(async (req: Request, res: Response) => {
     // Get user input
     const data = req.body ?? {};
 
-    if (!req.file) {
-      return res.status(400).json({ message: 'No picture was uploaded, please select an picture' });
-    }
-
     delete data.pictureCategory;
 
     const { error, value } = validateCreatePost(data);
@@ -31,13 +27,25 @@ const createPost = catchAsync(async (req: Request, res: Response) => {
     if (error) {
       return res.status(400).send(error.details);
     }
+
     if (req.user) {
-      const fileUrl = `posts/${req.file.filename}`;
+      const filesUrl: Array<String> = [];
+
+      Array.isArray(req.files) &&
+        req.files?.forEach((file) => filesUrl.push(`posts/${file.filename}`));
+
+      let featuredImage = filesUrl.length === 0 ? '' : data.featuredImage ?? '';
+
+      // By default the first image is used as featured image to posting
+      if (filesUrl.length > 0 && !filesUrl.includes(featuredImage)) {
+        featuredImage = filesUrl[0];
+      }
 
       const postData = {
         ...data,
         userId: new Types.ObjectId(req.user._id),
-        picturePath: fileUrl,
+        images: filesUrl,
+        featuredImage,
       };
 
       const newPost = new PostModel(postData);

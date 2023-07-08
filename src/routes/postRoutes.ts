@@ -9,7 +9,7 @@ import { upload } from '../config/multerConfig';
 const router = express.Router();
 
 // CREATE
-router.route('/').post(verifyToken, upload.single('picture'), createPost);
+router.route('/').post(verifyToken, upload.array('images'), createPost);
 
 // READ
 router.route('/').get(verifyToken, getFeedPosts);
