@@ -13,9 +13,9 @@ router.route('/').post(verifyToken, upload.array('images'), createPost);
 
 // READ
 router.route('/').get(verifyToken, getFeedPosts);
-router.route('/:userId/posts').get(verifyToken, getUserPosts);
+// router.route('/:userId/posts').get(verifyToken, getUserPosts);
 
 // UPDATE
-router.route('/:id/like').patch(verifyToken, likePost);
+// router.route('/:id/like').patch(verifyToken, likePost);
 
 export default router;
