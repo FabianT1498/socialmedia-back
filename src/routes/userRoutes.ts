@@ -1,24 +1,25 @@
 import * as express from 'express';
 
-import {
-  getUser,
-  getUserFriends,
-  addRemoveFriend,
-  getAuthUser,
-} from './../controllers/userController';
-
-import { verifyToken } from './../middleware/authMiddleware';
+import { UserRole } from '@fabiant1498/llovizna-blog';
 
 import { upload } from '../config/multerConfig';
 
+import {
+  createUser,
+  getUser,
+  getUsers,
+  updateUser,
+  deleteUser,
+} from './../controllers/userController';
+
+import { verifyToken, verifyRole } from './../middleware/authMiddleware';
+
 const router = express.Router();
 
-// READ
-router.route('/me').get(verifyToken, getAuthUser);
-router.route('/:id').get(verifyToken, getUser);
-router.route('/:id/friends').get(verifyToken, getUserFriends);
+router.use(verifyToken, verifyRole(['superadmin', 'admin']));
 
-// UPDATE
-router.patch('/me/friends', verifyToken, addRemoveFriend);
+router.route('/').post(upload.single('picture'), createUser).get(getUsers);
+
+router.route('/:id').get(getUser).patch(updateUser).delete(deleteUser);
 
 export default router;

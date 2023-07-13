@@ -1,6 +1,8 @@
 import { Schema, model } from 'mongoose';
 import UserSchema from './typings/userSchema.interface';
 
+import { UserRole } from '@fabiant1498/llovizna-blog';
+
 const userSchema = new Schema<UserSchema>(
   {
     firstName: { type: String, required: true, default: null },
@@ -11,14 +13,24 @@ const userSchema = new Schema<UserSchema>(
       type: String,
       default: '',
     },
-    friends: {
-      type: [Schema.Types.ObjectId],
-      default: [],
+    username: {
+      type: String,
+      required: true,
+      unique: true,
     },
-    location: String,
-    occupation: String,
-    viewedProfile: Number,
-    impressions: Number,
+    role: {
+      type: String,
+      required: true,
+      enum: ['admin', 'superadmin', 'editor', 'eventManager'] as UserRole[],
+    },
+    createdAt: {
+      type: Schema.Types.Date,
+      required: false,
+    },
+    updatedAt: {
+      type: Schema.Types.Date,
+      required: false,
+    },
     token: { type: String, required: false },
   },
 

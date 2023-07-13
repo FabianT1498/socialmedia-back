@@ -1,4 +1,4 @@
-import User from "@models/typings/user.interface";
+import { User } from '@fabiant1498/llovizna-blog';
 
 declare global {
   namespace Express {

@@ -1,7 +1,7 @@
 import * as dotenv from 'dotenv';
 
 import { seedUsers } from './userSeeder';
-import { seedPosts } from './postSeeder';
+// import { seedPosts } from './postSeeder';
 
 dotenv.config();
 
@@ -11,7 +11,7 @@ const seed = async () => {
   try {
     await connect();
     await seedUsers();
-    await seedPosts();
+    // await seedPosts();
     process.exit(0);
   } catch (err) {
     console.log(err);

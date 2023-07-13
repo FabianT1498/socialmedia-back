@@ -1,17 +1,15 @@
 import * as multer from 'multer';
 
-type UploadDirsUrl = {
-  post: string;
-  profile: string;
-  ads: string;
-};
+import { PictureCategory } from '@fabiant1498/llovizna-blog';
 
-let parentDirUrl = 'assets';
+type UploadDirUrls = Record<PictureCategory, string>;
 
-const uploadDirsUrl: UploadDirsUrl = {
-  post: `${parentDirUrl}/posts`,
-  profile: `${parentDirUrl}/profiles`,
-  ads: `${parentDirUrl}/ads`,
+let parentDir = 'assets';
+
+export const uploadDirUrl: UploadDirUrls = {
+  post: `${parentDir}/posts`,
+  profile: `${parentDir}/profiles`,
+  ad: `${parentDir}/ads`,
 };
 
 const storage = multer.diskStorage({
@@ -24,14 +22,17 @@ const storage = multer.diskStorage({
       return cb(multerError, '');
     }
 
-    let pictureCategory: keyof UploadDirsUrl = req.body?.pictureCategory as keyof UploadDirsUrl;
+    let pictureCategory: PictureCategory = req.body?.pictureCategory as PictureCategory;
 
-    let uploadDir = uploadDirsUrl[pictureCategory] || '';
+    let uploadDir = uploadDirUrl[pictureCategory] || '';
 
     if (uploadDir === '') {
       multerError.message = 'Picture category is not valid';
       return cb(multerError, '');
     }
+
+    // rid pictureCategory property from request, it's not needed anymore
+    delete req.body.pictureCategory;
 
     cb(null, uploadDir);
   },

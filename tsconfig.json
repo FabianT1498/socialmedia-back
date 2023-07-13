@@ -1,31 +1,25 @@
 {
   "compilerOptions": {
-    "module": "commonjs",                               /* Specify what module code is generated. */
+    "module": "commonjs" /* Specify what module code is generated. */,
     "target": "es5",
-    "rootDir": "./src",                                  /* Specify the root folder within your source files. */
+    "rootDir": "./src" /* Specify the root folder within your source files. */,
     "sourceMap": true,
-    "outDir": "./dist",                                   /* Specify an output folder for all emitted files. */
-    "forceConsistentCasingInFileNames": true,            /* Ensure that casing is correct in imports. */
+    "outDir": "./dist" /* Specify an output folder for all emitted files. */,
+    "forceConsistentCasingInFileNames": true /* Ensure that casing is correct in imports. */,
     "strict": true,
-    "skipLibCheck": true,                                 /* Skip type checking all .d.ts files. */
+    "skipLibCheck": true /* Skip type checking all .d.ts files. */,
     "strictNullChecks": true,
     "baseUrl": ".",
-    "typeRoots": [
-      "./types",
-      "./node_modules/@types"
-    ],
+    "typeRoots": ["./types", "./node_modules/@types", "./node_modules/@fabiant1498/llovizna-blog"],
     "paths": {
-        "@app/*": ["src/*"],
-        "@models/*": ["src/models/*"],
-        "@controllers/*": ["src/controllers/*"],
-        "@routes/*": ["src/routes/*"],
-        "@utils/*": ["src/utils/*"],
-        "@validations/*": ["src/validations/*"]
-      }
+      "@app/*": ["src/*"],
+      "@models/*": ["src/models/*"],
+      "@controllers/*": ["src/controllers/*"],
+      "@routes/*": ["src/routes/*"],
+      "@utils/*": ["src/utils/*"],
+      "@validations/*": ["src/validations/*"]
+    }
   },
- "include": ["./src/server.ts"],
-  "exclude": [
-    "node_modules",
-    "**/*.spec.ts"
-  ]
+  "include": ["./src/server.ts"],
+  "exclude": ["node_modules", "**/*.spec.ts"]
 }
